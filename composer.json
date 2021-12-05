@@ -1,0 +1,28 @@
+{
+  "name": "padcmoi/vue-bootstrap-utils-for-php-api",
+  "description": "Pack de classes backend pour application cliente VueJS avec plugin Bootstrap",
+  "type": "library",
+  "keywords": [
+    "php",
+    "api",
+    "utils-library",
+    "vuejs",
+    "bootstrap"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Julien Jean",
+      "email": "juliennaskot@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.2",
+    "padcmoi/bundle-api-slim": "^0.6.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Padcmoi\\VueBootstrap\\": "src/"
+    }
+  }
+}
