@@ -8,6 +8,64 @@ use PDO;
 
 class VueBS4Table
 {
+    /**
+     * Affiche les items et construit la requête SQL
+     * @param {Object/null} $args
+     * @param {Array} $options keys [ 'args','selector','extended_selector','orderBy','searchFilter','keyId' ]
+     *
+     * @return {Array}
+     */
+    public static function easyItems(string $table, array $options = [])
+    {
+        // Vérification des objets
+        $args = Misc::objectHasProperty($options, 'args', 'array') ? $options['args'] : null;
+        $selector = Misc::objectHasProperty($options, 'selector', 'array') ? $options['selector'] : [];
+        $extended_selector = Misc::objectHasProperty($options, 'extended_selector', 'string') ? $options['extended_selector'] : '';
+        $orderBy = Misc::objectHasProperty($options, 'orderBy', 'array') ? $options['orderBy'] : [];
+        $searchFilter = Misc::objectHasProperty($options, 'searchFilter', 'array') ? $options['searchFilter'] : [];
+        $keyId = Misc::objectHasProperty($options, 'keyId', 'string') ? $options['keyId'] : 'filter';
+
+        // construction des requetes SQL
+        $limit = self::limit($args);
+        $filter = self::clauseForFilter($searchFilter, $keyId);
+        $extended_selector = $extended_selector != "" && count($selector) > 0 ? "," . $extended_selector : "";
+
+        $items = self::items(
+            "SELECT DISTINCT " . implode(',', $selector) . $extended_selector . " " .
+            "FROM " . $table . " " .
+            "WHERE " . $filter .
+            self::orderBy($orderBy) .
+            "LIMIT :currentPage, :perPage ",
+            [
+                ['key' => ':filter', 'value' => self::filter(), 'param' => PDO::PARAM_STR],
+                ['key' => ':currentPage', 'value' => $limit['limit'], 'param' => PDO::PARAM_INT],
+                ['key' => ':perPage', 'value' => $limit['offset'], 'param' => PDO::PARAM_INT],
+            ]);
+
+        return [
+            'totalRows' => self::totalRows($table, $searchFilter, $keyId),
+            'currentRows' => count($items),
+            'items' => $items,
+        ];
+    }
+
+    /**
+     * Total insertions par rapport à la selection
+     * @param {String} $table
+     * @param {Array} $searchFilter
+     * @param {String} $keyId
+     *
+     * @return {int}
+     */
+    private static function totalRows(string $table, array $searchFilter, string $keyId = 'filter')
+    {
+        return Database::rowCount(
+            "SELECT * " .
+            "FROM " . $table . " " .
+            "WHERE " . self::clauseForFilter($searchFilter, $keyId),
+            [':filter' => self::filter()], ['fetch_named']
+        );
+    }
 
     /**
      * Retourne les items avec une requete SQL conçu pour Bootstrap Table
