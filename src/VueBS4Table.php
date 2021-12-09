@@ -8,19 +8,69 @@ use PDO;
 
 class VueBS4Table
 {
+    private static $conditionData = [
+        'key' => null,
+        'comparaison' => '=',
+        'bind' => ':bind',
+        'value' => '',
+        'param' => 2,
+    ], $addBeforeWhere = '';
+
+    /**
+     * Prepare les données pour $conditionData
+     * @param {array} $additionalWhere
+     *
+     * @void
+     */
+    private static function setAdditionalWhere(array $additionalWhere = [])
+    {
+        foreach (array_keys($additionalWhere) as $key) {
+            self::$conditionData[$key] = $additionalWhere[$key];
+        }
+    }
+
+    /**
+     * Ajoute une seule condition à la clause WHERE
+     * qui sera suivi d'un AND puis le filter BS4
+     *
+     * @param {array} $bindValue
+     * @param {boolean} type de requete preparé PDO
+     *
+     * @return {array} retourne le bindValue modifié ou non
+     */
+    private static function createConditionAdded(array $bindValue, $easy = false)
+    {
+        if (array_keys(self::$conditionData) == ['key', 'comparaison', 'bind', 'value', 'param'] && self::$conditionData['key']) {
+            $obj = self::$conditionData;
+
+            if ($easy) {
+                array_unshift($bindValue, ['key' => $obj['bind'], 'value' => $obj['value'], 'param' => PDO::PARAM_STR]);
+            } else {
+                $bindValue[$obj['bind']] = $obj['value'];
+            }
+
+            self::$addBeforeWhere = '`' . $obj['key'] . '` ' . $obj['comparaison'] . ' ' . $obj['bind'] . ' AND ';
+        } else {
+            self::$addBeforeWhere = '';
+        }
+
+        return $bindValue;
+    }
+
     /**
      * Affiche les items et construit la requête SQL
      * @param {Object/null} $args
-     * @param {Array} $options keys [ 'args','selector','extended_selector','orderBy','searchFilter','keyId' ]
+     * @param {Array} $options keys [ 'args','selector','extended_selector','add_before_where','orderBy','searchFilter','keyId' ]
      *
      * @return {Array}
      */
     public static function easyItems(string $table, array $options = [])
     {
         // Vérification des objets
+        self::setAdditionalWhere(Misc::objectHasProperty($options, 'add_before_where', 'array') ? $options['add_before_where'] : []);
         $args = Misc::objectHasProperty($options, 'args', 'array') ? $options['args'] : null;
         $selector = Misc::objectHasProperty($options, 'selector', 'array') ? $options['selector'] : [];
-        $extended_selector = Misc::objectHasProperty($options, 'extended_selector', 'string') ? $options['extended_selector'] : '';
+        $extended_selector = Misc::objectHasProperty($options, 'extended_selector', 'string') ? $options['extended_selector'] : ' ';
         $orderBy = Misc::objectHasProperty($options, 'orderBy', 'array') ? $options['orderBy'] : [];
         $searchFilter = Misc::objectHasProperty($options, 'searchFilter', 'array') ? $options['searchFilter'] : [];
         $keyId = Misc::objectHasProperty($options, 'keyId', 'string') ? $options['keyId'] : 'filter';
@@ -30,17 +80,18 @@ class VueBS4Table
         $filter = self::clauseForFilter($searchFilter, $keyId);
         $extended_selector = $extended_selector != "" && count($selector) > 0 ? "," . $extended_selector : "";
 
+        $bind_value = self::createConditionAdded([
+            ['key' => ':filter', 'value' => self::filter(), 'param' => PDO::PARAM_STR],
+            ['key' => ':currentPage', 'value' => $limit['limit'], 'param' => PDO::PARAM_INT],
+            ['key' => ':perPage', 'value' => $limit['offset'], 'param' => PDO::PARAM_INT],
+        ], true);
+
         $items = self::items(
             "SELECT DISTINCT " . implode(',', $selector) . $extended_selector . " " .
             "FROM " . $table . " " .
-            "WHERE " . $filter .
+            "WHERE " . self::$addBeforeWhere . $filter .
             self::orderBy($orderBy) .
-            "LIMIT :currentPage, :perPage ",
-            [
-                ['key' => ':filter', 'value' => self::filter(), 'param' => PDO::PARAM_STR],
-                ['key' => ':currentPage', 'value' => $limit['limit'], 'param' => PDO::PARAM_INT],
-                ['key' => ':perPage', 'value' => $limit['offset'], 'param' => PDO::PARAM_INT],
-            ]);
+            "LIMIT :currentPage, :perPage ", $bind_value);
 
         return [
             'totalRows' => self::totalRows($table, $searchFilter, $keyId),
@@ -59,11 +110,15 @@ class VueBS4Table
      */
     private static function totalRows(string $table, array $searchFilter, string $keyId = 'filter')
     {
+        $bind_value = self::createConditionAdded([
+            ':filter' => self::filter(),
+        ]);
+
         return Database::rowCount(
             "SELECT * " .
             "FROM " . $table . " " .
-            "WHERE " . self::clauseForFilter($searchFilter, $keyId),
-            [':filter' => self::filter()], ['fetch_named']
+            "WHERE " . self::$addBeforeWhere . self::clauseForFilter($searchFilter, $keyId),
+            $bind_value, ['fetch_named']
         );
     }
 
