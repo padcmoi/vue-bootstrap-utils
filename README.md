@@ -25,8 +25,13 @@ class Table
             'args' => $args,
             'selector' => $SELECTOR,
             'orderBy' => $SELECTOR,
-            // 'extended_selector' => $extended_selector,
             'searchFilter' => $SEARCHS_FILTER,
+            'add_before_where' => [
+                'key' => 'id',
+                'comparaison' => '>=',
+                'bind' => ':bind',
+                'value' => '197',
+            ]
         ]);
     }
 }
