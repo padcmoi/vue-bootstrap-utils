@@ -70,7 +70,7 @@ class VueBS4Table
         self::setAdditionalWhere(Misc::objectHasProperty($options, 'add_before_where', 'array') ? $options['add_before_where'] : []);
         $args = Misc::objectHasProperty($options, 'args', 'array') ? $options['args'] : null;
         $selector = Misc::objectHasProperty($options, 'selector', 'array') ? $options['selector'] : [];
-        $extended_selector = Misc::objectHasProperty($options, 'extended_selector', 'string') ? $options['extended_selector'] : ' ';
+        $extended_selector = Misc::objectHasProperty($options, 'extended_selector', 'string') ? $options['extended_selector'] : '';
         $orderBy = Misc::objectHasProperty($options, 'orderBy', 'array') ? $options['orderBy'] : [];
         $searchFilter = Misc::objectHasProperty($options, 'searchFilter', 'array') ? $options['searchFilter'] : [];
         $keyId = Misc::objectHasProperty($options, 'keyId', 'string') ? $options['keyId'] : 'filter';
