@@ -37,6 +37,51 @@ class Table
 }
 ```
 
+Example Usage with 2 SQL Join in a project
+```PHP
+<?php
+namespace App\Application\Manager\Desires;
+
+use App\Application\Manager\Desires\Misc\DesireExtends;
+use App\Application\Manager\ResponseManager;
+use Padcmoi\VueBootstrap\VueBS4Table;
+
+class DesiresList extends DesireExtends
+{
+    const SELECTOR = [
+        "t1.id",
+        "t1.created_at",
+        "t2.nom",
+        "t3.libelle",
+        "t1.complement",
+        "t1.date",
+        "t1.moment",
+        "t1.date_choisie",
+        "t1.destinataire_proposition",
+        "t1.etat",
+    ],
+    SEARCHS_FILTER = ["t1.id", "t2.nom", "t3.libelle", "t1.complement", "t1.date", "t1.date_choisie"];
+
+    /**
+     * Affiche les items
+     * @param {array/NULL} provient de SLIM
+     *
+     * @void
+     */
+    public static function items($args = null)
+    {
+        ResponseManager::add(['desires_list' =>
+            VueBS4Table::easyItems('envie AS t1 LEFT JOIN utilisateur AS t2 ON(t1.utilisateur=t2.id) LEFT JOIN activite AS t3 ON(t1.activite=t3.id)', [
+                'args' => $args,
+                'selector' => self::SELECTOR,
+                'orderBy' => self::SELECTOR,
+                'searchFilter' => self::SEARCHS_FILTER,
+            ]),
+        ]);
+    }
+}
+```
+
 # ➡️Others
 ##### 🧳Packagist
 https://packagist.org/packages/padcmoi/vue-bootstrap-utils-for-php-api
