@@ -220,7 +220,7 @@ class VueBS4Table
     public static function clauseForFilter(array $searchs = [], string $keyId)
     {
         $str = array_map(function ($v) {
-            $v = "LCASE(`" . strtolower($v) . "`)";
+            $v = "LCASE(" . strtolower($v) . ")";
             return $v;
         }, $searchs);
 
