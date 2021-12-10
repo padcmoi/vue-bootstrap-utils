@@ -60,6 +60,18 @@ class DesiresList extends DesireExtends
         "t1.destinataire_proposition",
         "t1.etat",
     ],
+    ORDER_BY = [
+        "id",
+        "created_at",
+        "nom",
+        "libelle",
+        "complement",
+        "date",
+        "moment",
+        "date_choisie",
+        "destinataire_proposition",
+        "etat",
+    ],
     SEARCHS_FILTER = ["t1.id", "t2.nom", "t3.libelle", "t1.complement", "t1.date", "t1.date_choisie"];
 
     /**
@@ -74,7 +86,7 @@ class DesiresList extends DesireExtends
             VueBS4Table::easyItems('envie AS t1 LEFT JOIN utilisateur AS t2 ON(t1.utilisateur=t2.id) LEFT JOIN activite AS t3 ON(t1.activite=t3.id)', [
                 'args' => $args,
                 'selector' => self::SELECTOR,
-                'orderBy' => self::SELECTOR,
+                'orderBy' => self::ORDER_BY,
                 'searchFilter' => self::SEARCHS_FILTER,
             ]),
         ]);
