@@ -49,7 +49,7 @@ class VueBS4Table
                 $bindValue[$obj['bind']] = $obj['value'];
             }
 
-            self::$addBeforeWhere = '`' . $obj['key'] . '` ' . $obj['comparaison'] . ' ' . $obj['bind'] . ' AND ';
+            self::$addBeforeWhere = $obj['key'] . $obj['comparaison'] . ' ' . $obj['bind'] . ' AND ';
         } else {
             self::$addBeforeWhere = '';
         }
