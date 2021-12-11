@@ -14,7 +14,7 @@ class VueBS4Table
         'bind' => ':bind',
         'value' => '',
         'param' => 2,
-    ], $addBeforeWhere = '';
+    ], $addBeforeWhere = '', $distinctCmd = '';
 
     /**
      * Prepare les données pour $conditionData
@@ -58,6 +58,18 @@ class VueBS4Table
     }
 
     /**
+     * Active ou désactive la commande Distinct dans les requetes SELECT
+     * par défaut désactivé
+     * @param {Boolean}
+     *
+     * @void
+     */
+    public static function distinct(bool $mode = true)
+    {
+        self::$distinctCmd = $mode ? ' DISTINCT ' : '';
+    }
+
+    /**
      * Affiche les items et construit la requête SQL
      * @param {Object/null} $args
      * @param {Array} $options keys [ 'args','selector','extended_selector','add_before_where','orderBy','searchFilter','keyId' ]
@@ -87,7 +99,7 @@ class VueBS4Table
         ], true);
 
         $items = self::items(
-            "SELECT DISTINCT " . implode(',', $selector) . $extended_selector . " " .
+            "SELECT " . self::$distinctCmd . implode(',', $selector) . $extended_selector . " " .
             "FROM " . $table . " " .
             "WHERE " . self::$addBeforeWhere . $filter .
             self::orderBy($orderBy) .
@@ -172,7 +184,7 @@ class VueBS4Table
             return ' ';
         }
 
-        return " ORDER BY `" . $sortBy . "` " . $sortDesc . " ";
+        return " ORDER BY " . $sortBy . " " . $sortDesc . " ";
     }
 
     /**
