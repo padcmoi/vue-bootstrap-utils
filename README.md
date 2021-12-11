@@ -1,4 +1,4 @@
-# Component PHP for VueBootstrap
+# Component VueBootstrap for PHP frameworks 
 
 
 # ➡️Install
@@ -82,6 +82,8 @@ class DesiresList extends DesireExtends
      */
     public static function items($args = null)
     {
+        VueBS4Table::distinct(true); // Ajoute dans la requete DISTINCT apres SELECT, par défaut désactivé
+    
         ResponseManager::add(['desires_list' =>
             VueBS4Table::easyItems('envie AS t1 LEFT JOIN utilisateur AS t2 ON(t1.utilisateur=t2.id) LEFT JOIN activite AS t3 ON(t1.activite=t3.id)', [
                 'args' => $args,
