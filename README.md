@@ -6,6 +6,15 @@
 composer require padcmoi/vue-bootstrap-utils-for-php-api
 ```
 
+to add in .env file 
+```ENV
+DB_HOSTNAME='localhost'
+DB_USERNAME='***USER***'
+DB_PASSWORD='***PASS***'
+DB_DATABASE='***BDD****'
+
+```
+
 
 # ➡️Usage
 Example Usage in a project
@@ -37,7 +46,7 @@ class Table
 }
 ```
 
-Example Usage with 2 SQL Join in a project
+Example Usage with 2 SQL Join in a project and Distinct mode
 ```PHP
 <?php
 namespace App\Application\Manager\Desires;
